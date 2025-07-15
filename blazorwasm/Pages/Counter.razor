@@ -1,0 +1,58 @@
+﻿@page "/counter"
+@inject IJSRuntime JS
+
+<PageTitle>Counter</PageTitle>
+
+<h1>Counter</h1>
+
+<p role="status">Current count: @currentCount</p>
+
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+
+<div class="mt-4">
+    <h2>Webcam Object Detection</h2>
+    <div style="position: relative; width: 640px; height: 480px; margin-bottom: 10px;">
+        <video id="videoFeed" width="640" height="480" autoplay playsinline style="position: absolute;"></video>
+        <canvas id="outputCanvas" width="640" height="480" style="position: absolute; top: 0; left: 0;"></canvas>
+    </div>
+
+    <button class="btn btn-secondary mt-2" @onclick="StartWebcam">Start Webcam</button>
+    <button class="btn btn-info mt-2" @onclick="ToggleYoloDetection">
+        @(_isYoloRunning ? "Stop YOLO" : "Run YOLO")
+    </button>
+</div>
+
+
+@code {
+    private int currentCount = 0;
+    private bool _isYoloRunning = false;
+
+    // 페이지가 처음 렌더링될 때 YOLO 모델을 초기화합니다.
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // initYolo(modelPath, videoId, canvasId)
+            // YOLOv8n.onnx 모델이 wwwroot/model/ 경로에 있다고 가정합니다.
+            await JS.InvokeVoidAsync("initYolo", "model/yolo11n.onnx", "videoFeed", "outputCanvas");
+        }
+    }
+
+    private void IncrementCount()
+    {
+        currentCount++;
+    }
+
+    private async Task StartWebcam()
+    {
+        // startVideo(videoId)
+        await JS.InvokeVoidAsync("startVideo", "videoFeed");
+    }
+
+    private async Task ToggleYoloDetection()
+    {
+        // runYolo()는 이제 start/stop 토글 역할을 합니다.
+        await JS.InvokeVoidAsync("runYolo");
+        _isYoloRunning = !_isYoloRunning; // 상태 업데이트
+    }
+}
