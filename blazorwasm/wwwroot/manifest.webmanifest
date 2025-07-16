@@ -2,7 +2,7 @@
   "name": "blazorwasm",
   "short_name": "blazorwasm",
   "id": "./",
-  "start_url": "./",
+  "start_url": "/autoever_vision_project/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#03173d",

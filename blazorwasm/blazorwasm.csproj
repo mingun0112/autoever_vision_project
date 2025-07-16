@@ -6,6 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
     <BaseHref>/autoever_vision_project/</BaseHref>
+    <ServiceWorkerScope>/autoever_vision_project/</ServiceWorkerScope>
   </PropertyGroup>
 
   <ItemGroup>
