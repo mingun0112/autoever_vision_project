@@ -1,0 +1,132 @@
+﻿@page "/detector"
+
+<div class="container">
+    <div class="header">
+        <h1>트레블 코인 월렛</h1>
+        <p class="subtitle">AI가 동전을 세어드려요</p>
+    </div>
+
+    <div class="main-content">
+        <div class="camera-section">
+            <div class="section-header">
+                <h2 class="section-title">카메라</h2>
+                <div class="status-badge active">
+                    <div class="status-dot"></div>
+                    대기 중
+                </div>
+            </div>
+
+            <div class="camera-container">
+                <div class="camera-feed">
+                    <div class="camera-placeholder">
+                        <div class="camera-icon">📷</div>
+                        <h3>동전을 카메라에 보여주세요</h3>
+                        <p>실시간으로 동전을 인식하고 계산해드려요</p>
+                    </div>
+
+                    <div class="detection-overlay">
+                        <div class="coin-box coin-500" style="top: 30%; left: 40%; width: 50px; height: 50px;">
+                            <div class="coin-label">500원</div>
+                        </div>
+                        <div class="coin-box coin-100" style="top: 50%; left: 65%; width: 40px; height: 40px;">
+                            <div class="coin-label">100원</div>
+                        </div>
+                        <div class="coin-box coin-50" style="top: 65%; left: 35%; width: 35px; height: 35px;">
+                            <div class="coin-label">50원</div>
+                        </div>
+                        <div class="coin-box coin-10" style="top: 40%; left: 70%; width: 30px; height: 30px;">
+                            <div class="coin-label">10원</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls">
+                @* <button class="btn btn-primary" onclick="toggleCamera()">
+                    <span>▶️</span> 시작하기
+                </button> *@
+                <button class="btn btn-secondary" onclick="captureImage()">
+                    <span>📸</span> 캡처
+                </button>
+            </div>
+
+            <div class="processing-indicator" id="processingIndicator">
+                <div class="spinner"></div>
+                <p class="processing-text">동전을 분석하고 있어요</p>
+            </div>
+        </div>
+
+        <div class="results-panel">
+            <div class="section-header">
+                <h2 class="section-title">결과</h2>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">10개</div>
+                    <div class="stat-label">총 동전</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">4종류</div>
+                    <div class="stat-label">동전 종류</div>
+                </div>
+            </div>
+
+            <div class="coin-summary">
+                <div class="coin-item coin-500">
+                    <div class="coin-info">
+                        <div class="coin-icon">500</div>
+                        <div class="coin-details">
+                            <h4>500원</h4>
+                            <p>오백원 동전</p>
+                        </div>
+                    </div>
+                    <div class="coin-count">2개</div>
+                </div>
+
+                <div class="coin-item coin-100">
+                    <div class="coin-info">
+                        <div class="coin-icon">100</div>
+                        <div class="coin-details">
+                            <h4>100원</h4>
+                            <p>백원 동전</p>
+                        </div>
+                    </div>
+                    <div class="coin-count">3개</div>
+                </div>
+
+                <div class="coin-item coin-50">
+                    <div class="coin-info">
+                        <div class="coin-icon">50</div>
+                        <div class="coin-details">
+                            <h4>50원</h4>
+                            <p>오십원 동전</p>
+                        </div>
+                    </div>
+                    <div class="coin-count">1개</div>
+                </div>
+
+                <div class="coin-item coin-10">
+                    <div class="coin-info">
+                        <div class="coin-icon">10</div>
+                        <div class="coin-details">
+                            <h4>10원</h4>
+                            <p>십원 동전</p>
+                        </div>
+                    </div>
+                    <div class="coin-count">4개</div>
+                </div>
+            </div>
+
+            <div class="total-section">
+                <div class="total-label">총 금액</div>
+                <div class="total-amount">1,390원</div>
+                <div class="total-coins">10개 동전</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+
+}

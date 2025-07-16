@@ -101,3 +101,525 @@ a, .btn-link {
 code {
     color: #c02d76;
 }
+
+@import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&display=swap');
+:root {
+    --toss-blue: #3182F6;
+    --toss-blue-light: #EBF4FF;
+    --toss-blue-dark: #1B64DA;
+    --toss-gray-900: #191F28;
+    --toss-gray-800: #333D4B;
+    --toss-gray-700: #4E5968;
+    --toss-gray-600: #6B7684;
+    --toss-gray-500: #8B95A1;
+    --toss-gray-400: #B0B8C1;
+    --toss-gray-300: #D1D6DB;
+    --toss-gray-200: #E5E8EB;
+    --toss-gray-100: #F2F4F6;
+    --toss-gray-50: #F9FAFB;
+    --toss-white: #FFFFFF;
+    --toss-green: #07C160;
+    --toss-red: #F04452;
+    --toss-yellow: #FFB800;
+    --toss-orange: #FF6B00;
+    --shadow-1: 0 1px 3px rgba(0, 0, 0, 0.1);
+    --shadow-2: 0 4px 6px rgba(0, 0, 0, 0.07);
+    --shadow-3: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 40px;
+    background: var(--toss-white);
+    padding: 40px 24px;
+    border-radius: 16px;
+    box-shadow: var(--shadow-1);
+}
+
+    .header h1 {
+        font-size: 32px;
+        font-weight: 700;
+        color: var(--toss-gray-900);
+        margin-bottom: 8px;
+    }
+
+    .header .subtitle {
+        font-size: 16px;
+        color: var(--toss-gray-600);
+        font-weight: 500;
+    }
+
+.main-content {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 24px;
+    align-items: start;
+}
+
+.camera-section {
+    background: var(--toss-white);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: var(--shadow-1);
+    border: 1px solid var(--toss-gray-200);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--toss-gray-200);
+}
+
+.section-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--toss-gray-900);
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+}
+
+    .status-badge.active {
+        background: var(--toss-blue-light);
+        color: var(--toss-blue);
+    }
+
+    .status-badge.inactive {
+        background: var(--toss-gray-100);
+        color: var(--toss-gray-600);
+    }
+
+.status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.camera-container {
+    position: relative;
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--toss-gray-100);
+    margin-bottom: 20px;
+}
+
+.camera-feed {
+    width: 100%;
+    height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    background: linear-gradient(135deg, var(--toss-gray-100), var(--toss-gray-50));
+}
+
+.camera-placeholder {
+    text-align: center;
+    color: var(--toss-gray-600);
+}
+
+.camera-icon {
+    width: 64px;
+    height: 64px;
+    background: var(--toss-gray-200);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    font-size: 24px;
+}
+
+.camera-placeholder h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--toss-gray-800);
+    margin-bottom: 8px;
+}
+
+.camera-placeholder p {
+    font-size: 14px;
+    color: var(--toss-gray-600);
+}
+
+.detection-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.coin-box {
+    position: absolute;
+    border: 2px solid;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    animation: coinPulse 2s infinite;
+}
+
+    .coin-box.coin-500 {
+        border-color: var(--toss-yellow);
+        background: rgba(255, 184, 0, 0.1);
+    }
+
+    .coin-box.coin-100 {
+        border-color: var(--toss-blue);
+        background: rgba(49, 130, 246, 0.1);
+    }
+
+    .coin-box.coin-50 {
+        border-color: var(--toss-orange);
+        background: rgba(255, 107, 0, 0.1);
+    }
+
+    .coin-box.coin-10 {
+        border-color: var(--toss-red);
+        background: rgba(240, 68, 82, 0.1);
+    }
+
+.coin-label {
+    position: absolute;
+    top: -28px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--toss-gray-900);
+    color: var(--toss-white);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+@keyframes coinPulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.05);
+        opacity: 0.8;
+    }
+}
+
+.controls {
+    display: flex;
+    gap: 12px;
+}
+
+.btn {
+    flex: 1;
+    padding: 16px 20px;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 56px;
+}
+
+.btn-primary {
+    background: var(--toss-blue);
+    color: var(--toss-white);
+}
+
+    .btn-primary:hover {
+        background: var(--toss-blue-dark);
+    }
+
+    .btn-primary:active {
+        transform: scale(0.98);
+    }
+
+.btn-secondary {
+    background: var(--toss-gray-100);
+    color: var(--toss-gray-800);
+    border: 1px solid var(--toss-gray-300);
+}
+
+    .btn-secondary:hover {
+        background: var(--toss-gray-200);
+    }
+
+    .btn-secondary:active {
+        transform: scale(0.98);
+    }
+
+.results-panel {
+    background: var(--toss-white);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: var(--shadow-1);
+    border: 1px solid var(--toss-gray-200);
+    position: sticky;
+    top: 24px;
+}
+
+.coin-summary {
+    margin-bottom: 24px;
+}
+
+.coin-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    margin-bottom: 8px;
+    border-radius: 12px;
+    background: var(--toss-gray-50);
+    border: 1px solid var(--toss-gray-200);
+    transition: all 0.2s ease;
+}
+
+    .coin-item:hover {
+        background: var(--toss-gray-100);
+        border-color: var(--toss-gray-300);
+    }
+
+    .coin-item:last-child {
+        margin-bottom: 0;
+    }
+
+.coin-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.coin-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: var(--toss-white);
+    font-size: 14px;
+}
+
+.coin-500 .coin-icon {
+    background: var(--toss-yellow);
+}
+
+.coin-100 .coin-icon {
+    background: var(--toss-blue);
+}
+
+.coin-50 .coin-icon {
+    background: var(--toss-orange);
+}
+
+.coin-10 .coin-icon {
+    background: var(--toss-red);
+}
+
+.coin-details h4 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--toss-gray-900);
+    margin-bottom: 2px;
+}
+
+.coin-details p {
+    font-size: 14px;
+    color: var(--toss-gray-600);
+}
+
+.coin-count {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--toss-gray-900);
+}
+
+.total-section {
+    background: var(--toss-blue);
+    color: var(--toss-white);
+    padding: 24px;
+    border-radius: 12px;
+    text-align: center;
+    position: relative;
+}
+
+.total-label {
+    font-size: 14px;
+    font-weight: 500;
+    opacity: 0.8;
+    margin-bottom: 8px;
+}
+
+.total-amount {
+    font-size: 36px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    letter-spacing: -0.02em;
+}
+
+.total-coins {
+    font-size: 14px;
+    font-weight: 500;
+    opacity: 0.8;
+}
+
+.processing-indicator {
+    display: none;
+    text-align: center;
+    padding: 20px;
+    background: var(--toss-blue-light);
+    border-radius: 12px;
+    margin-top: 16px;
+    border: 1px solid var(--toss-blue);
+}
+
+    .processing-indicator.active {
+        display: block;
+    }
+
+.spinner {
+    width: 24px;
+    height: 24px;
+    border: 2px solid var(--toss-blue-light);
+    border-top: 2px solid var(--toss-blue);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 12px;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.processing-text {
+    font-size: 14px;
+    color: var(--toss-blue);
+    font-weight: 500;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.stat-card {
+    background: var(--toss-gray-50);
+    border: 1px solid var(--toss-gray-200);
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--toss-gray-900);
+    margin-bottom: 4px;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: var(--toss-gray-600);
+    font-weight: 500;
+}
+
+.notification {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    padding: 16px 20px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 1000;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+}
+
+    .notification.show {
+        transform: translateX(0);
+    }
+
+    .notification.success {
+        background: var(--toss-green);
+        color: var(--toss-white);
+    }
+
+    .notification.warning {
+        background: var(--toss-yellow);
+        color: var(--toss-gray-900);
+    }
+
+@media (max-width: 768px) {
+    .main-content {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .results-panel {
+        position: static;
+    }
+
+    .controls {
+        flex-direction: column;
+    }
+
+    .header {
+        padding: 32px 20px;
+    }
+
+        .header h1 {
+            font-size: 24px;
+        }
+
+    .camera-section, .results-panel {
+        padding: 20px;
+    }
+
+    .camera-feed {
+        height: 300px;
+    }
+
