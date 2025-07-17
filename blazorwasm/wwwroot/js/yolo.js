@@ -1,19 +1,31 @@
-﻿// 웹캠 스트림을 시작하고 <video> 요소에 연결하는 함수
-window.startVideo = async function (videoId) {
+﻿window.startVideo = async function (videoId) {
     const video = document.getElementById(videoId);
     if (!video) {
         console.error("Video element not found:", videoId);
         return;
     }
+
     try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        const stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+                facingMode: { exact: "environment" } // 후면 카메라 요청
+            }
+        });
         video.srcObject = stream;
-        await video.play();
-        console.log("Webcam started.");
+        video.play();
     } catch (err) {
-        console.error("Error accessing webcam:", err);
+        console.warn("Rear camera not available. Falling back to default camera.", err);
+        try {
+            // 후면 카메라 실패 시 기본 카메라
+            const fallbackStream = await navigator.mediaDevices.getUserMedia({ video: true });
+            video.srcObject = fallbackStream;
+            video.play();
+        } catch (fallbackErr) {
+            console.error("Error accessing any camera:", fallbackErr);
+        }
     }
 };
+
 
 let session;
 let videoElement; // 비디오 엘리먼트 참조
@@ -264,8 +276,8 @@ function postprocess(results, original_width, original_height, model_input_width
     coinCounts["500"] = 0;
 
 
-    console.log("Output Tensor Dimensions (JS):", output_dims);
-    console.log("Output Tensor Data (JS, first 100 values):", data.slice(0, 100)); // 값 범위 확인
+    //console.log("Output Tensor Dimensions (JS):", output_dims);
+    //console.log("Output Tensor Data (JS, first 100 values):", data.slice(0, 100)); // 값 범위 확인
 
     // Python 코드의 transpose와 squeeze에 해당하는 작업 수행
     // [1, 84, 8400] -> [8400, 84] 형태로 데이터를 다시 구성 (논리적 재구성)
