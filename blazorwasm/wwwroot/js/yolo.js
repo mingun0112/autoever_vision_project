@@ -51,7 +51,7 @@ let detectionInterval; // 실시간 감지를 위한 setInterval ID
 //];
 const MAX_CLASSES = 4;
 const CLASS_NAMES = [
-    '10원', '50원', '100원', '500원'
+    '10원', '100원', '50원', '500원'
 ];
 const coinCounts = {
     "10": 0,
@@ -392,8 +392,8 @@ function postprocess(results, original_width, original_height, model_input_width
         outputCtx.fillText(label, final_draw_x + 5, final_draw_y - 10);
 
         if (classId == 0) coinCounts["10"]++;
-        else if (classId == 1) coinCounts["50"]++;
-        else if (classId == 2) coinCounts["100"]++;
+        else if (classId == 1) coinCounts["100"]++;
+        else if (classId == 2) coinCounts["50"]++;
         else if (classId == 3) coinCounts["500"]++;
     }
 
