@@ -307,10 +307,10 @@ function postprocess(results, original_width, original_height, model_input_width
             if (prob > maxClassProb) {
                 maxClassProb = prob;
                 classId = c_idx; // 0-79
-                if (classId >= MAX_CLASSES) {
-                    //console.warn(`Class ID ${classId} exceeds MAX_CLASSES (${MAX_CLASSES}). Skipping.`);
-                    classId = 3; // 유효하지 않은 클래스 ID로 설정 (당신이 설정한 MAX_CLASSES보다 큰 경우 처리)
-                }
+                //if (classId >= MAX_CLASSES) {
+                //    //console.warn(`Class ID ${classId} exceeds MAX_CLASSES (${MAX_CLASSES}). Skipping.`);
+                //    classId = 3; // 유효하지 않은 클래스 ID로 설정 (당신이 설정한 MAX_CLASSES보다 큰 경우 처리)
+                //}
             }
         }
 
