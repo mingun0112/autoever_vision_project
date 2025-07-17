@@ -49,11 +49,12 @@
 
             <div class="controls">
                 <button class="btn btn-primary" @onclick="StartWebcam">
-                    <span>▶️</span> 시작하기
-                </button>
-                <button class="btn btn-secondary" @onclick="ToggleYoloDetection">
+                    @* <span>▶️</span> 시작하기 *@
                     <span>📸</span> 캡처
                 </button>
+                @* <button class="btn btn-secondary" @onclick="ToggleYoloDetection">
+                    <span>📸</span> 캡처
+                </button> *@
             </div>
 
             <div class="processing-indicator" id="processingIndicator">
@@ -151,6 +152,7 @@
     {
         // startVideo(videoId)
         await JS.InvokeVoidAsync("startVideo", "videoFeed");
+        await Task.Delay(500);
         await JS.InvokeVoidAsync("runYolo");
         _isYoloRunning = !_isYoloRunning; // 상태 업데이트
     }
