@@ -260,8 +260,8 @@ function postprocess(results, original_width, original_height, model_input_width
         const confidence = data[offset + 4];
         const classId = Math.round(data[offset + 5]); // class_id는 float일 수 있으므로 반올림
 
-        // confidence가 0이거나 매우 낮은 박스는 유효하지 않으므로 스킵
-        if (confidence <= 0.25) { // CONFIDENCE_THRESHOLD 값을 직접 사용할 수도 있습니다.
+        // confidence가 0이거나 매우 8낮은 박스는 유효하지 않으므로 스킵
+        if (confidence <= 0.) { // CONFIDENCE_THRESHOLD 값을 직접 사용할 수도 있습니다.
             continue;
         }
 
