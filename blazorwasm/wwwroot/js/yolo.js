@@ -21,20 +21,32 @@ let outputCanvas; // 경계 상자를 그릴 캔버스 엘리먼트
 let outputCtx;    // 캔버스 2D 컨텍스트
 let detectionInterval; // 실시간 감지를 위한 setInterval ID
 
+
+
 // 색상 정의 (Python 코드의 colors 배열과 유사하게)
-const MAX_CLASSES = 80;
+//const MAX_CLASSES = 80;
+//const CLASS_NAMES = [
+//    'person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus', 'train', 'truck', 'boat',
+//    'traffic light', 'fire hydrant', 'stop sign', 'parking meter', 'bench', 'bird', 'cat',
+//    'dog', 'horse', 'sheep', 'cow', 'elephant', 'bear', 'zebra', 'giraffe', 'backpack',
+//    'umbrella', 'handbag', 'tie', 'suitcase', 'frisbee', 'skis', 'snowboard', 'sports ball',
+//    'kite', 'baseball bat', 'baseball glove', 'skateboard', 'surfboard', 'tennis racket',
+//    'bottle', 'wine glass', 'cup', 'fork', 'knife', 'spoon', 'bowl', 'banana', 'apple',
+//    'sandwich', 'orange', 'broccoli', 'carrot', 'hot dog', 'pizza', 'donut', 'cake',
+//    'chair', 'couch', 'potted plant', 'bed', 'dining table', 'toilet', 'tv', 'laptop',
+//    'mouse', 'remote', 'keyboard', 'cell phone', 'microwave', 'oven', 'toaster', 'sink',
+//    'refrigerator', 'book', 'clock', 'vase', 'scissors', 'teddy bear', 'hair drier', 'toothbrush'
+//];
+const MAX_CLASSES = 4;
 const CLASS_NAMES = [
-    'person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus', 'train', 'truck', 'boat',
-    'traffic light', 'fire hydrant', 'stop sign', 'parking meter', 'bench', 'bird', 'cat',
-    'dog', 'horse', 'sheep', 'cow', 'elephant', 'bear', 'zebra', 'giraffe', 'backpack',
-    'umbrella', 'handbag', 'tie', 'suitcase', 'frisbee', 'skis', 'snowboard', 'sports ball',
-    'kite', 'baseball bat', 'baseball glove', 'skateboard', 'surfboard', 'tennis racket',
-    'bottle', 'wine glass', 'cup', 'fork', 'knife', 'spoon', 'bowl', 'banana', 'apple',
-    'sandwich', 'orange', 'broccoli', 'carrot', 'hot dog', 'pizza', 'donut', 'cake',
-    'chair', 'couch', 'potted plant', 'bed', 'dining table', 'toilet', 'tv', 'laptop',
-    'mouse', 'remote', 'keyboard', 'cell phone', 'microwave', 'oven', 'toaster', 'sink',
-    'refrigerator', 'book', 'clock', 'vase', 'scissors', 'teddy bear', 'hair drier', 'toothbrush'
+    '10원', '50원', '100원', '500원'
 ];
+const coinCounts = {
+    "10": 0,
+    "50": 0,
+    "100": 0,
+    "500": 0
+};
 const colors = [];
 for (let i = 0; i < MAX_CLASSES; i++) {
     colors.push([Math.random() * 255, Math.random() * 255, Math.random() * 255]);
@@ -103,7 +115,7 @@ function nms(boxes, scores, score_threshold, nms_threshold) {
     return keep;
 }
 
-window.initYolo = async function (modelPath = 'model/yolo11n.onnx', videoId = 'videoFeed', canvasId = 'outputCanvas') {
+window.initYolo = async function (modelPath = 'model/woo.onnx', videoId = 'videoFeed', canvasId = 'outputCanvas') {
     try {
         // ONNX Runtime 세션 초기화
         session = await ort.InferenceSession.create(modelPath);
@@ -217,7 +229,7 @@ window.runYolo = async function () {
             clearInterval(detectionInterval);
             detectionInterval = null;
         }
-    }, 100); // 100ms마다 감지 (초당 10프레임)
+    }, 150); // 100ms마다 감지 (초당 10프레임)
     console.log("Started continuous YOLO detection.");
 };
 
@@ -243,6 +255,14 @@ function postprocess(results, original_width, original_height, model_input_width
     const output = results['output0']; // 모델 출력 텐서
     const data = output.data; // Float32Array (Flattened array)
     const output_dims = output.dims; // 예를 들어, [1, 84, 8400]
+
+
+
+    coinCounts["10"] = 0;
+    coinCounts["50"] = 0;
+    coinCounts["100"] = 0;
+    coinCounts["500"] = 0;
+
 
     console.log("Output Tensor Dimensions (JS):", output_dims);
     console.log("Output Tensor Data (JS, first 100 values):", data.slice(0, 100)); // 값 범위 확인
@@ -279,6 +299,10 @@ function postprocess(results, original_width, original_height, model_input_width
             if (prob > maxClassProb) {
                 maxClassProb = prob;
                 classId = c_idx; // 0-79
+                if (classId >= MAX_CLASSES) {
+                    //console.warn(`Class ID ${classId} exceeds MAX_CLASSES (${MAX_CLASSES}). Skipping.`);
+                    classId = 3; // 유효하지 않은 클래스 ID로 설정
+                }
             }
         }
 
@@ -354,5 +378,28 @@ function postprocess(results, original_width, original_height, model_input_width
         const label = `${className} (${confidence.toFixed(2)})`;
         //const label = `Class ${classId} (${confidence.toFixed(2)})`;
         outputCtx.fillText(label, final_draw_x + 5, final_draw_y - 10);
+
+        if (classId == 0) coinCounts["10"]++;
+        else if (classId == 1) coinCounts["50"]++;
+        else if (classId == 2) coinCounts["100"]++;
+        else if (classId==3) coinCounts["500"]++;
     }
-}
+
+    // Update UI safely
+    ["10", "50", "100", "500"].forEach(coin => {
+        const el = document.getElementById(`coin-${coin}`);
+        if (el) {
+            el.textContent = `${coinCounts[coin]}개`;
+        } else {
+            console.warn(`ID coin-${coin}에 해당하는 요소가 없습니다.`);
+        }
+    });
+    const total_amount = document.getElementById("total_amount");
+    const total_coin = document.getElementById("total_coin");
+    const total_coin_display = document.getElementById("total_coin_display");
+
+    total_amount.textContent = `${coinCounts["10"] * 10 + coinCounts["50"] * 50 + coinCounts["100"] * 100 + coinCounts["500"] * 500}원`;
+    total_coin.textContent = `${coinCounts["10"] + coinCounts["50"] + coinCounts["100"] + coinCounts["500"]}개`;
+    total_coin_display.textContent = total_amount.textContent;
+
+    }

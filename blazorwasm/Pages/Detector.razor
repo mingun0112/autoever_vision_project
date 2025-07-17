@@ -1,4 +1,5 @@
 ﻿@page "/detector"
+@inject IJSRuntime JS
 
 <div class="container">
     <div class="header">
@@ -16,15 +17,20 @@
                 </div>
             </div>
 
+            
+
+
             <div class="camera-container">
                 <div class="camera-feed">
+                    <video id="videoFeed" width="640" height="480" autoplay playsinline style="position: absolute;"></video>
+                    <canvas id="outputCanvas" width="640" height="480" style="position: absolute; top: 0; left: 0;"></canvas>
                     <div class="camera-placeholder">
                         <div class="camera-icon">📷</div>
                         <h3>동전을 카메라에 보여주세요</h3>
                         <p>실시간으로 동전을 인식하고 계산해드려요</p>
                     </div>
 
-                    <div class="detection-overlay">
+                    @*  <div class="detection-overlay">
                         <div class="coin-box coin-500" style="top: 30%; left: 40%; width: 50px; height: 50px;">
                             <div class="coin-label">500원</div>
                         </div>
@@ -37,15 +43,15 @@
                         <div class="coin-box coin-10" style="top: 40%; left: 70%; width: 30px; height: 30px;">
                             <div class="coin-label">10원</div>
                         </div>
-                    </div>
+                    </div>  *@
                 </div>
             </div>
 
             <div class="controls">
-                @* <button class="btn btn-primary" onclick="toggleCamera()">
+                <button class="btn btn-primary" @onclick="StartWebcam">
                     <span>▶️</span> 시작하기
-                </button> *@
-                <button class="btn btn-secondary" onclick="captureImage()">
+                </button>
+                <button class="btn btn-secondary" @onclick="ToggleYoloDetection">
                     <span>📸</span> 캡처
                 </button>
             </div>
@@ -63,7 +69,7 @@
 
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-value">10개</div>
+                    <div class="stat-value" id="total_coin_display">10개</div>
                     <div class="stat-label">총 동전</div>
                 </div>
                 <div class="stat-card">
@@ -73,7 +79,7 @@
             </div>
 
             <div class="coin-summary">
-                <div class="coin-item coin-500">
+                <div class="coin-item coin-500" >
                     <div class="coin-info">
                         <div class="coin-icon">500</div>
                         <div class="coin-details">
@@ -81,7 +87,7 @@
                             <p>오백원 동전</p>
                         </div>
                     </div>
-                    <div class="coin-count">2개</div>
+                    <div class="coin-count" id="coin-500">2개</div>
                 </div>
 
                 <div class="coin-item coin-100">
@@ -92,7 +98,7 @@
                             <p>백원 동전</p>
                         </div>
                     </div>
-                    <div class="coin-count">3개</div>
+                    <div class="coin-count" id="coin-100">3개</div>
                 </div>
 
                 <div class="coin-item coin-50">
@@ -103,7 +109,7 @@
                             <p>오십원 동전</p>
                         </div>
                     </div>
-                    <div class="coin-count">1개</div>
+                    <div class="coin-count" id="coin-50">1개</div>
                 </div>
 
                 <div class="coin-item coin-10">
@@ -114,19 +120,43 @@
                             <p>십원 동전</p>
                         </div>
                     </div>
-                    <div class="coin-count">4개</div>
+                    <div class="coin-count" id="coin-10">4개</div>
                 </div>
             </div>
 
             <div class="total-section">
                 <div class="total-label">총 금액</div>
-                <div class="total-amount">1,390원</div>
-                <div class="total-coins">10개 동전</div>
+                <div class="total-amount" id="total_amount">1,390원</div>
+                <div class="total-coins" id="total_coin">10개 동전</div>
             </div>
         </div>
     </div>
 </div>
 
 @code {
+    private bool _isYoloRunning = false;
 
+    // 페이지가 처음 렌더링될 때 YOLO 모델을 초기화합니다.
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // initYolo(modelPath, videoId, canvasId)
+            // YOLOv8n.onnx 모델이 wwwroot/model/ 경로에 있다고 가정합니다.
+            await JS.InvokeVoidAsync("initYolo", "model/lee.onnx", "videoFeed", "outputCanvas");
+        }
+    }
+
+    private async Task StartWebcam()
+    {
+        // startVideo(videoId)
+        await JS.InvokeVoidAsync("startVideo", "videoFeed");
+    }
+
+    private async Task ToggleYoloDetection()
+    {
+        // runYolo()는 이제 start/stop 토글 역할을 합니다.
+        await JS.InvokeVoidAsync("runYolo");
+        _isYoloRunning = !_isYoloRunning; // 상태 업데이트
+    }
 }
