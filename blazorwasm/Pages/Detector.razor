@@ -151,6 +151,8 @@
     {
         // startVideo(videoId)
         await JS.InvokeVoidAsync("startVideo", "videoFeed");
+        await JS.InvokeVoidAsync("runYolo");
+        _isYoloRunning = !_isYoloRunning; // 상태 업데이트
     }
 
     private async Task ToggleYoloDetection()
