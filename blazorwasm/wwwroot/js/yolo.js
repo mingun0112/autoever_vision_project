@@ -154,17 +154,19 @@ window.initYolo = async function (modelPath = 'model/woo.onnx', videoId = 'video
         // 캔버스 크기를 비디오 엘리먼트와 동일하게 설정하여 오버레이 가능하도록 준비
         // 비디오의 실제 크기가 로드될 때까지 기다릴 수 있도록 event listener 사용
         videoElement.onloadedmetadata = () => {
-            outputCanvas.width = videoElement.videoWidth;
-            outputCanvas.height = videoElement.videoHeight;
+            // 캔버스의 내부 그리기 표면을 비디오의 *표시된* 크기와 일치시킵니다.
+            outputCanvas.width = videoElement.offsetWidth;
+            outputCanvas.height = videoElement.offsetHeight;
 
-            // 캔버스 스타일 (비디오 위에 오버레이되도록)
+            // 캔버스를 비디오 위에 직접 배치합니다.
             outputCanvas.style.position = 'absolute';
             outputCanvas.style.left = videoElement.offsetLeft + 'px';
             outputCanvas.style.top = videoElement.offsetTop + 'px';
             outputCanvas.style.width = videoElement.offsetWidth + 'px';
             outputCanvas.style.height = videoElement.offsetHeight + 'px';
-            console.log(`Canvas resized to ${outputCanvas.width}x${outputCanvas.height} and positioned.`);
+            console.log(`Canvas drawing surface set to ${outputCanvas.width}x${outputCanvas.height} and positioned.`);
         };
+
 
     } catch (err) {
         console.error("Error initializing YOLO model:", err);
@@ -268,16 +270,10 @@ function postprocess(results, original_width, original_height, model_input_width
     const data = output.data; // Float32Array (Flattened array)
     const output_dims = output.dims; // 예를 들어, [1, 84, 8400]
 
-
-
     coinCounts["10"] = 0;
     coinCounts["50"] = 0;
     coinCounts["100"] = 0;
     coinCounts["500"] = 0;
-
-
-    //console.log("Output Tensor Dimensions (JS):", output_dims);
-    //console.log("Output Tensor Data (JS, first 100 values):", data.slice(0, 100)); // 값 범위 확인
 
     // Python 코드의 transpose와 squeeze에 해당하는 작업 수행
     // [1, 84, 8400] -> [8400, 84] 형태로 데이터를 다시 구성 (논리적 재구성)
@@ -313,25 +309,17 @@ function postprocess(results, original_width, original_height, model_input_width
                 classId = c_idx; // 0-79
                 if (classId >= MAX_CLASSES) {
                     //console.warn(`Class ID ${classId} exceeds MAX_CLASSES (${MAX_CLASSES}). Skipping.`);
-                    classId = 3; // 유효하지 않은 클래스 ID로 설정
+                    classId = 3; // 유효하지 않은 클래스 ID로 설정 (당신이 설정한 MAX_CLASSES보다 큰 경우 처리)
                 }
             }
         }
 
-        // Python 코드와 동일하게 max_score를 confidence로 사용
-        // Python에서는 objectness와 class_scores 중 가장 높은 값을 max_score로 사용함.
-        // 하지만 Python 코드의 `np.argmax(classes_scores)`는 'objectness'까지 포함하므로,
-        // 아래와 같이 `objectness`와 `maxClassProb` 중 더 큰 값을 최종 score로 취합니다.
-        const confidence_val = Math.max(objectness, maxClassProb); // Python 코드와 유사한 해석
+        const confidence_val = Math.max(objectness, maxClassProb);
 
-        // 콘솔 로그를 남발하면 성능 저하의 원인이 될 수 있으므로, 디버깅 시에만 활성화하는 것이 좋습니다.
-        // console.log(`Pred ${i}: Obj=${objectness.toFixed(4)}, MaxCls=${maxClassProb.toFixed(4)}, FinalConf=${confidence_val.toFixed(4)}, ClassId=${classId}`);
-
-        // 0-1 사이의 값으로 나왔을 때 임계값 적용
-        if (confidence_val >= CONFIDENCE_THRESHOLD) { // CONFIDENCE_THRESHOLD는 0.25로 유지
+        if (confidence_val >= CONFIDENCE_THRESHOLD) {
             detectedBoxes.push({
-                cx, cy, w, h, confidence: confidence_val, classId, // confidence는 confidence_val 사용
-                score: confidence_val // NMS를 위한 score 필드
+                cx, cy, w, h, confidence: confidence_val, classId,
+                score: confidence_val
             });
         }
     }
@@ -345,11 +333,24 @@ function postprocess(results, original_width, original_height, model_input_width
 
     const inverse_scale = 1 / scale_factor_for_model_input;
 
+    // --- 여기부터가 핵심 변경 사항입니다. ---
+    // 캔버스의 현재 *표시된* 치수를 가져옵니다.
+    // videoElement.offsetWidth/offsetHeight를 사용해도 되지만,
+    // canvas의 width/height가 이미 videoElement.offsetWidth/offsetHeight로 설정되어 있어야 합니다.
+    const display_width = outputCanvas.width;
+    const display_height = outputCanvas.height;
+
+    // 원본 비디오 해상도에서 캔버스 표시 해상도로의 스케일링 팩터 계산
+    const scale_x_to_display = display_width / original_width;
+    const scale_y_to_display = display_height / original_height;
+    // --- 핵심 변경 사항 끝 ---
+
+
     // NMS를 통과한 박스 그리기
     for (const idx of indicesToKeep) {
         const box = detectedBoxes[idx];
         const classId = box.classId;
-        const confidence = box.confidence; // 이 confidence는 이제 0-1 범위의 값
+        const confidence = box.confidence;
 
         // 모델 출력 (cx, cy, w, h)는 640x640 패딩 이미지 기준입니다.
         // 먼저 640x640 패딩 이미지 기준의 x1, y1, x2, y2를 계산
@@ -365,36 +366,35 @@ function postprocess(results, original_width, original_height, model_input_width
         const w_original_scale = w_model * inverse_scale;
         const h_original_scale = h_model * inverse_scale;
 
-        // 최종 그리기 좌표는 원본 비디오 크기에 맞춥니다.
-        // Math.round를 사용하여 정수 픽셀로 만듭니다.
-        const draw_x = Math.round(x1_original_scale);
-        const draw_y = Math.round(y1_original_scale);
-        const draw_w = Math.round(w_original_scale);
-        const draw_h = Math.round(h_original_scale);
+        // --- 여기부터가 핵심 변경 사항입니다. ---
+        // 원본 비디오 크기 기준의 좌표를 캔버스 표시 크기에 맞게 최종 스케일링
+        const draw_x_display = x1_original_scale * scale_x_to_display;
+        const draw_y_display = y1_original_scale * scale_y_to_display;
+        const draw_w_display = w_original_scale * scale_x_to_display;
+        const draw_h_display = h_original_scale * scale_y_to_display;
 
-        // 클리핑 (박스가 원본 비디오 경계를 벗어나지 않도록)
-        const final_draw_x = Math.max(0, draw_x);
-        const final_draw_y = Math.max(0, draw_y);
-        const final_draw_w = Math.min(original_width - final_draw_x, draw_w);
-        const final_draw_h = Math.min(original_height - final_draw_y, draw_h);
+        // 클리핑 (박스가 캔버스 경계를 벗어나지 않도록)
+        const final_draw_x = Math.max(0, draw_x_display);
+        const final_draw_y = Math.max(0, draw_y_display);
+        const final_draw_w = Math.min(display_width - final_draw_x, draw_w_display);
+        const final_draw_h = Math.min(display_height - final_draw_y, draw_h_display);
+        // --- 핵심 변경 사항 끝 ---
 
-
-        const color = colors[classId % MAX_CLASSES]; // 색상 가져오기 (RGB 배열)
+        const color = colors[classId % MAX_CLASSES];
         outputCtx.strokeStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
         outputCtx.lineWidth = 5;
         outputCtx.strokeRect(final_draw_x, final_draw_y, final_draw_w, final_draw_h);
 
         outputCtx.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
-        outputCtx.font = '14px Arial';
-        const className = CLASS_NAMES[classId] || `Unknown Class ${classId}`; // 클래스 ID에 해당하는 이름 가져오기
+        outputCtx.font = '14px Arial'; // 글꼴 크기도 display_height에 비례하여 조정하면 더 좋을 수 있습니다.
+        const className = CLASS_NAMES[classId] || `Unknown Class ${classId}`;
         const label = `${className} (${confidence.toFixed(2)})`;
-        //const label = `Class ${classId} (${confidence.toFixed(2)})`;
         outputCtx.fillText(label, final_draw_x + 5, final_draw_y - 10);
 
         if (classId == 0) coinCounts["10"]++;
         else if (classId == 1) coinCounts["50"]++;
         else if (classId == 2) coinCounts["100"]++;
-        else if (classId==3) coinCounts["500"]++;
+        else if (classId == 3) coinCounts["500"]++;
     }
 
     // Update UI safely
@@ -413,5 +413,4 @@ function postprocess(results, original_width, original_height, model_input_width
     total_amount.textContent = `${coinCounts["10"] * 10 + coinCounts["50"] * 50 + coinCounts["100"] * 100 + coinCounts["500"] * 500}원`;
     total_coin.textContent = `${coinCounts["10"] + coinCounts["50"] + coinCounts["100"] + coinCounts["500"]}개`;
     total_coin_display.textContent = total_amount.textContent;
-
-    }
+}
